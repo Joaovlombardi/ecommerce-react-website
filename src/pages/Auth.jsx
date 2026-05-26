@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useForm } from "react-hook-form";
+import { AuthContext } from "../context/AuthContext";
 
 export default function Auth() {
   const [mode, setMode] = useState("signup");
+  const {signUp, user} = useContext(AuthContext)
 
   const {
     register,
@@ -10,14 +12,15 @@ export default function Auth() {
     formState: { errors },
   } = useForm();
 
-  function onSubmit() {
-    alert("signup");
+  function onSubmit(data) {
+    signUp(data.email, data.password)
   }
 
   return (
     <div className="page">
       <div className="container">
         <div className="auth-container">
+        {user && <p>User logged in: {user.email}</p>}
           <h1 className="page-title">
             {mode === "signup" ? "Sign Up" : "Login"}
           </h1>
@@ -51,7 +54,7 @@ export default function Auth() {
                   },
                 })}
                 className="form-input"
-                type="passwords"
+                type="password"
                 id="password"
               />
               {errors.password && <span className="form-error">{errors.password.message}</span>}
