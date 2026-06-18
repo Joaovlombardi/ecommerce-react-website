@@ -1,24 +1,23 @@
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useAuth } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 export default function Auth() {
-  const [mode, setMode] = useState("signup");
-  const [error, setError] = useState(null);
+  const [searchParams] = useSearchParams();
+  const mode = searchParams.get("mode") || "signup";
 
   const navigate = useNavigate();
-
   const { signUp, login } = useAuth();
 
   const {
     register,
     handleSubmit,
     formState: { errors },
+    setError,
+    reset,
   } = useForm();
 
   function onSubmit(data) {
-    setError(null);
     let result;
     if (mode === "signup") {
       result = signUp(data.email, data.password);
@@ -29,8 +28,13 @@ export default function Auth() {
     if (result.success) {
       navigate("/");
     } else {
-      setError(result.error);
+      setError("root", { message: result.error });
     }
+  }
+
+  function switchMode() {
+    reset()
+    navigate(`/auth?mode=${mode === "signup" ? "login" : "signup"}`);
   }
 
   return (
@@ -41,7 +45,9 @@ export default function Auth() {
             {mode === "signup" ? "Sign Up" : "Login"}
           </h1>
           <form className="auth-form" onSubmit={handleSubmit(onSubmit)}>
-            {error && <div className="error-message">{error}</div>}
+            {errors.root && (
+              <div className="error-message">{errors.root.message}</div>
+            )}
             <div className="form-group">
               <label className="form-label" htmlFor="email">
                 Email
@@ -90,15 +96,14 @@ export default function Auth() {
             {mode === "signup" ? (
               <p>
                 Already have an account?{" "}
-                <span className="auth-link" onClick={() => setMode("login")}>
+                <span className="auth-link" onClick={switchMode}>
                   Login
                 </span>
               </p>
             ) : (
               <p>
-                {" "}
                 Don't have an account?{" "}
-                <span className="auth-link" onClick={() => setMode("signup")}>
+                <span className="auth-link" onClick={switchMode}>
                   Sign Up
                 </span>
               </p>
