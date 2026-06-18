@@ -1,13 +1,12 @@
 import { createContext, useContext, useState } from "react";
 
-// eslint-disable-next-line
 const AuthContext = createContext(null);
 
 export default function AuthProvider({ children }) {
   const [user, setUser] = useState(
     localStorage.getItem("currentUserEmail")
       ? { email: localStorage.getItem("currentUserEmail") }
-      : null,
+      : null
   );
 
   function signUp(email, password) {
@@ -16,7 +15,6 @@ export default function AuthProvider({ children }) {
     if (users.find((u) => u.email === email)) {
       return { success: false, error: "Email already exists" };
     }
-
     const newUser = { email, password };
     users.push(newUser);
     localStorage.setItem("users", JSON.stringify(users));
@@ -30,7 +28,7 @@ export default function AuthProvider({ children }) {
   function login(email, password) {
     const users = JSON.parse(localStorage.getItem("users") || "[]");
     const user = users.find(
-      (u) => u.email === email && u.password === password,
+      (u) => u.email === email && u.password === password
     );
 
     if (!user) {
@@ -40,7 +38,7 @@ export default function AuthProvider({ children }) {
     localStorage.setItem("currentUserEmail", email);
     setUser({ email });
 
-    return { success: true }
+    return { success: true };
   }
 
   function logout() {
@@ -54,7 +52,6 @@ export default function AuthProvider({ children }) {
     </AuthContext.Provider>
   );
 }
-
 // eslint-disable-next-line
 export function useAuth() {
   const context = useContext(AuthContext);
